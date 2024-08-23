@@ -12,6 +12,11 @@ Draft IVOA web service standards framework
    It is an experiment intended as input to ongoing IVOA discussions about future revisions to IVOA standards.
    The document is written as if it were an IVOA standard to save effort if parts of it can be cut and pasted into future documents, but it is not endorsed by the IVOA and is not part of any IVOA protocol.
 
+.. seealso::
+
+   :sqr:`92`: Draft IVOA JSON encoding
+       A network protocol encoding based on HTTP and JSON that follows this framework.
+
 Standards structure
 ===================
 
@@ -42,6 +47,16 @@ object
     At the top level, an object is a mapping from labels to values.
     The values may be complex structures, such as objects or lists of objects.
 
+request
+    A single request to a web service, resulting in a single response.
+
+operation
+    A single thing a web service can do, such as a query or a state changing operation like a delete or a modification.
+    In some cases, such as redirects, this may involve multiple client requests and server responses, but there is only one input object and only one response object or data stream.
+    A complex action using a web service, such as creating a job, starting it, and then collecting its results, will therefore involve multiple operations.
+
+.. _data-types:
+
 Data types
 ==========
 
@@ -49,8 +64,11 @@ Data types
 
    This should be reconciled with the standard data types used elsewhere in IVOA standards.
    This is almost certainly missing additional data types that will be needed.
+   In particular, it should probably include all of the DALI types.
+
    Handling of milliseconds in timestamps and durations is probably not correct.
    Some more attention to UTC vs. TAI is probably required.
+
    We may wish to allow null values in lists with an accompanying specification for what they mean.
 
 The following data types may be used for object values in web service specifications.
@@ -93,11 +111,19 @@ float
     By default, the values positive infinity, negative infinity, and NaN are not permitted.
     The web service specification may explicitly allow them, but then must state their intended meanings in the context of the web service.
 
+boolean
+    A value that accepts only two options, true or false.
+
+enum
+    A value that must be chosen from an enumerated list of possibilities specified in the web service specification.
+    Each possibility must be a string.
+
 timestamp
-    A specific point in UTC time.
+    A specific point in UTC time using the Gregorian calendar.
     By default, the time has second precision and a millisecond portion of all zeroes should not be interpreted as providing additional precision.
     Optionally, the web service specification may state that the milliseconds are significant.
     Precision greater than milliseconds is not supported in timestamp fields and should be represented using some other data type (generally integer or float) following a specification specific to that web service.
+    Dates prior to 1582-10-15 should not use this data type since they predate the Gregorian calendar.
 
 duration
     A time duration.
@@ -111,6 +137,54 @@ list
     Lists may not contain null values.
     By default, a list may be empty.
     If it must be non-empty, the web service specification must specify this.
+
+Operations
+==========
+
+A web service supports one or more operations.
+Each is initiated by a client request and results in a server response.
+The request consists of an input object and possibly some additional information specified by the network encoding.
+The response consists of a single response object or a data response.
+(See :ref:`responses`.)
+
+A web service specification should describe every operation of that web service.
+Those descriptions must include the input object specification, including all of its labels and value data types; a description of the possible responses; and the semantics of the operation.
+
+Operation types
+---------------
+
+Operations must be classified as one of the following, since each may be encoded differently by the network protocol:
+
+query
+    Requests some data but does not modify it.
+
+create
+    Creates some new object on the server.
+    This can be a control object such as a job to run, or a piece of data that the server should store.
+
+modify
+    Modifies some existing object stored on the server.
+
+delete
+    Deletes some object stored on the server.
+
+action
+    Requests that the server perform some action that does not directly correspond to creating, modifying, deleting, or querying an object.
+
+.. _responses:
+
+Responses
+=========
+
+Web service responses fall into two general buckets: a structured protocol response that uses the data types specified here, and a data response consisting of output in some other format.
+The web service specification must say, for each operation, what type of response to expect.
+This may vary based on the nature of the response; for example, success may produce a data response, but a failure may produce a structured error.
+
+Data responses must be associated with a MIME type that describes the format of the response.
+Web service specifications should list the MIME types of the possible data responses that are standardized, but implementations may also allow the client to request non-standard data response types.
+
+The network protocol encoding must describe how to receive a data response and determine its MIME type, but need not describe how it is encoded if the network protocol conveys the normal byte stream representation of that MIME type in a way that is understood by a normal client of that network protocol.
+For example, a network protocol specification built on top of HTTP need not specify how HTTP conveys ``application/fits`` data, only how to label that the response is ``application/fits``.
 
 Errors
 ======
@@ -154,3 +228,36 @@ input (object, optional)
 
 An error reply body always contains a list of these objects, even if there is only one error.
 This allows a web service to return multiple errors in the same response, such as when input data contains more than one validation error.
+
+This structured error message may be used outside of explicit error responses.
+For example, it may be an appropriate data type for an error field in an object that provides the results of some previous operation.
+
+Specification contents
+======================
+
+Network protocols
+-----------------
+
+Network protocol specifications must include all of the following:
+
+#. An encoding for all of the data types listed in :ref:`data-types`.
+
+#. A specification for how a client should send a request.
+
+#. A specification for how a server should send a response.
+
+#. A specification for how a web service protocol can include a schema of its encoding in this network protocol.
+   For example, an XML network protocol specification may include instructions for how to provide XML schemas for request and response objects, and a JSON-based network protocol may include instructions for how to provide an OpenAPI schema.
+
+Web services
+------------
+
+Web service specifications must include all of the following:
+
+#. A list of all supported operations.
+   For each operation, this must include the type of operation, the input object and its data types, and the nature of the response.
+   If the response is a structured object, a specification of that object must be included.
+
+#. For each supported network protocol encoding, the information that the network protocol says should be provided.
+   This will usually include some form of schema for the combination of the web service and the network protocol.
+   Requiring a schema is highly recommended, since schemas allow for code generation, service validation, and automatic generation of documentation.
