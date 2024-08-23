@@ -75,6 +75,10 @@ string
     By default, this sequence is allowed to be empty.
     If this is not permitted for a given value, the web service must specify this.
 
+uri
+    A Uniform Resource Identifier as specified in :rfc:`3986`.
+    If there are any constraints on its contents, such as a specific schema or structure, this must be specified by the web service.
+
 integer
     An integer number with an optional sign.
     No exponent portion is permitted.
@@ -91,7 +95,6 @@ float
 
 timestamp
     A specific point in UTC time.
-    By default, the time is in UTC.
     By default, the time has second precision and a millisecond portion of all zeroes should not be interpreted as providing additional precision.
     Optionally, the web service specification may state that the milliseconds are significant.
     Precision greater than milliseconds is not supported in timestamp fields and should be represented using some other data type (generally integer or float) following a specification specific to that web service.
@@ -106,3 +109,48 @@ list
     The data type included in the list must be uniform.
     In other words, a list of strings, a list of floats, a list of objects of a specific type, or a list of lists of strings are all valid data types, but a list containing mixed integers and strings is not permitted.
     Lists may not contain null values.
+    By default, a list may be empty.
+    If it must be non-empty, the web service specification must specify this.
+
+Errors
+======
+
+When a web service returns an error in a context where it can include an object in the response, that object should be a list of error objects conforming to the following specification.
+
+.. note::
+
+   We should say something about localization.
+   The URI scheme here is based on some mailing list discussion but needs more fleshing out.
+
+error (uri)
+    A unique idenifier for the class of error.
+    This may be any URI, but preferrably is an ``http`` or ``https`` URL that points to a description of this class of error and any additional information about it that may be useful to the user.
+    URIs with scheme ``http`` or ``https`` and a host of ``ivoa.net`` are reserved for IVOA-standardized errors and should point to the definition of that error in the relevant IVOA standard.
+
+description (string)
+    A human-readable description of the error.
+
+details (string, optional)
+    Additional information about the error that may be helpful for debugging.
+    For example, the server may include a backtrace or execution trace, log output, or other verbose information about the failure.
+
+moreInfo (list of uri, optional)
+    Additional ``http`` or ``https`` URLs that provide additional information about this error or class of error.
+    A common use of this field is to provide additional local documentation for IVOA-standardized errors.
+
+input (object, optional)
+    Indicates that the error was caused by a specific input value.
+    This is an object with one or two keys.
+
+    field (string)
+        The portion of the input that caused the error.
+        The syntax of this string is specific to the network protocol used and must be specified by the network protocol.
+        For example, for a JSON-based protocol, it may be a JSONPath expression, and for an XML-based protocol, it may be an XPath.
+
+    value (optional)
+        The specific value that caused the error.
+        This will have whatever type the input value that caused the error had.
+        In cases where the value was missing or is not parsable or representable in the network protocol, this label may be omitted.
+
+An error reply body always contains a list of these objects, even if there is only one error.
+This allows a web service to return multiple errors in the same response, such as when input data contains more than one validation error.
