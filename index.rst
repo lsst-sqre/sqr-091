@@ -102,7 +102,7 @@ integer
     No exponent portion is permitted.
     By default, any integer between -9,007,199,254,740,991 and 9,007,199,254,740,991 (2\ :sup:`53` + 1 and 2\ :sup:`53` - 1) is permitted.
     The web service specification should state the valid range if it is different than this.
-    Values outside this default range may create encoding problems for some network protocols.
+    Values outside the default range may create encoding problems for some network protocols.
 
 float
     A floating point number.
@@ -208,7 +208,7 @@ details (string, optional)
     Additional information about the error that may be helpful for debugging.
     For example, the server may include a backtrace or execution trace, log output, or other verbose information about the failure.
 
-moreInfo (list of uri, optional)
+references (list of uri, optional)
     Additional ``http`` or ``https`` URLs that provide additional information about this error or class of error.
     A common use of this field is to provide additional local documentation for IVOA-standardized errors.
 
@@ -261,3 +261,14 @@ Web service specifications must include all of the following:
 #. For each supported network protocol encoding, the information that the network protocol says should be provided.
    This will usually include some form of schema for the combination of the web service and the network protocol.
    Requiring a schema is highly recommended, since schemas allow for code generation, service validation, and automatic generation of documentation.
+
+To do
+=====
+
+The following things should be part of this specification but have not yet been written:
+
+.. rst-class:: compact
+
+- Address the various notes scattered through the document.
+- A specification for the Universal Worker Service API.
+- Descriptions of errors common to many web services, in a form suitable for creating URLs that serve as error identifiers.
