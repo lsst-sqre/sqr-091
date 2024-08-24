@@ -103,7 +103,7 @@ uri
 integer
     An integer number with an optional sign.
     No exponent portion is permitted.
-    By default, any integer between -9,007,199,254,740,991 and 9,007,199,254,740,991 (2\ :sup:`53` + 1 and 2\ :sup:`53` - 1) is permitted.
+    By default, any integer between -9,007,199,254,740,991 and 9,007,199,254,740,991 (-2\ :sup:`53` + 1 and 2\ :sup:`53` - 1) is permitted.
     The web service specification should state the valid range if it is different than this.
     Values outside the default range may create encoding problems for some network protocols.
 
