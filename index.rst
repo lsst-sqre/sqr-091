@@ -14,8 +14,11 @@ Draft IVOA web service standards framework
 
 .. seealso::
 
-   :sqr:`92`: Draft IVOA JSON encoding
+   :sqr:`092`: Draft IVOA JSON encoding
        A network protocol encoding based on HTTP and JSON that follows this framework.
+
+   :sqr:`093`: Draft IVOA SODA web service specification
+       An example network protocol specification for a simple SODA cutout service using this framework.
 
 Standards structure
 ===================
@@ -103,7 +106,7 @@ uri
 integer
     An integer number with an optional sign.
     No exponent portion is permitted.
-    By default, any integer between -9,007,199,254,740,991 and 9,007,199,254,740,991 (2\ :sup:`53` + 1 and 2\ :sup:`53` - 1) is permitted.
+    By default, any integer between -9,007,199,254,740,991 and 9,007,199,254,740,991 (-2\ :sup:`53` + 1 and 2\ :sup:`53` - 1) is permitted.
     The web service specification should state the valid range if it is different than this.
     Values outside the default range may create encoding problems for some network protocols.
 
@@ -212,7 +215,7 @@ details (string, optional)
     Additional information about the error that may be helpful for debugging.
     For example, the server may include a backtrace or execution trace, log output, or other verbose information about the failure.
 
-references (list of uri, optional)
+reference (list of uri, optional, plural: references)
     Additional ``http`` or ``https`` URLs that provide additional information about this error or class of error.
     A common use of this field is to provide additional local documentation for IVOA-standardized errors.
 
@@ -225,7 +228,7 @@ input (object, optional)
         The syntax of this string is specific to the network protocol used and must be specified by the network protocol.
         For example, for a JSON-based protocol, it may be a JSONPath expression, and for an XML-based protocol, it may be an XPath.
 
-    value (optional)
+    value (any, optional)
         The specific value that caused the error.
         This will have whatever type the input value that caused the error had.
         In cases where the value was missing or is not parsable or representable in the network protocol, this label may be omitted.
