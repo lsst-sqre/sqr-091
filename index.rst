@@ -55,6 +55,9 @@ operation
     In some cases, such as redirects, this may involve multiple client requests and server responses, but there is only one input object and only one response object or data stream.
     A complex action using a web service, such as creating a job, starting it, and then collecting its results, will therefore involve multiple operations.
 
+parameters
+    The top-level labels of the input object for an operation are called the parameters of that application.
+
 .. _data-types:
 
 Data types
@@ -137,6 +140,7 @@ list
     Lists may not contain null values.
     By default, a list may be empty.
     If it must be non-empty, the web service specification must specify this.
+    The specification for the label for a value of type list must include both the singular and plural form, since different network encodings will use either the singular or the plural or both in different contexts.
 
 Operations
 ==========
@@ -241,6 +245,7 @@ Network protocols
 Network protocol specifications must include all of the following:
 
 #. An encoding for all of the data types listed in :ref:`data-types`.
+   For object labels whose values are list data types, this must include how to use the singular and plural forms of the label.
 
 #. A specification for how a client should send a request.
 
@@ -272,3 +277,6 @@ The following things should be part of this specification but have not yet been 
 - Address the various notes scattered through the document.
 - A specification for the Universal Worker Service API.
 - Descriptions of errors common to many web services, in a form suitable for creating URLs that serve as error identifiers.
+- Add the VOSI availability API
+- Add the VOSI capabilities API, which requires writing a data model for registry entries or continuing to return the current XML data model.
+- Add the DALI examples API.
