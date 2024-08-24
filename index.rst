@@ -14,8 +14,11 @@ Draft IVOA web service standards framework
 
 .. seealso::
 
-   :sqr:`92`: Draft IVOA JSON encoding
+   :sqr:`092`: Draft IVOA JSON encoding
        A network protocol encoding based on HTTP and JSON that follows this framework.
+
+   :sqr:`093`: Draft IVOA SODA web service specification
+       An example network protocol specification for a simple SODA cutout service using this framework.
 
 Standards structure
 ===================
