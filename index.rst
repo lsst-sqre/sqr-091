@@ -212,7 +212,7 @@ details (string, optional)
     Additional information about the error that may be helpful for debugging.
     For example, the server may include a backtrace or execution trace, log output, or other verbose information about the failure.
 
-references (list of uri, optional)
+reference (list of uri, optional, plural: references)
     Additional ``http`` or ``https`` URLs that provide additional information about this error or class of error.
     A common use of this field is to provide additional local documentation for IVOA-standardized errors.
 
