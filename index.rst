@@ -225,7 +225,7 @@ input (object, optional)
         The syntax of this string is specific to the network protocol used and must be specified by the network protocol.
         For example, for a JSON-based protocol, it may be a JSONPath expression, and for an XML-based protocol, it may be an XPath.
 
-    value (optional)
+    value (any, optional)
         The specific value that caused the error.
         This will have whatever type the input value that caused the error had.
         In cases where the value was missing or is not parsable or representable in the network protocol, this label may be omitted.
