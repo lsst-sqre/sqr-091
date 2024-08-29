@@ -81,27 +81,16 @@ The following data types may be used for object values in web service specificat
 A web service specification should indicate the data type of every value in an object.
 A network protocol specification must describe how to serialize and deserialize these data types when sending them as part of a request or response.
 
-object
-    A mapping of labels to values.
-    Each object must have a specification for its acceptable labels and values, and each such specified object is considered a separate data type.
-    Labels themselves are of type string (defined below).
-    Every value corresponding to a label must have a specified data type.
-    Labels may be optional, in which case the absence of the label and value or the presence of the label with a null value are equivalent.
+Primitive data types
+--------------------
 
-null
-    The null value, indicating no value is present.
-    If the value of a label within an object is null, this is equivalent to omitting the label and its value entirely.
-    Web service specifications will generally not define values as having the null type and instead specify that the corresponding label is optional, which means that it may either have a valid value of its specified type or may be null.
-    Network protocol specifications must specify how to serialize and deserialize null values.
+boolean
+    A value that accepts only two options, true or false.
 
-string
-    A sequence of Unicode code points.
-    By default, this sequence is allowed to be empty.
-    If this is not permitted for a given value, the web service must specify this.
-
-uri
-    A Uniform Resource Identifier as specified in :rfc:`3986`.
-    If there are any constraints on its contents, such as a specific schema or structure, this must be specified by the web service.
+duration
+    A time duration.
+    By default, the duration has second precision and a millisecond portion of all zeroes should not be interpreted as providing additional precision.
+    Optionally, the web service specification may state that the milliseconds are significant.
 
 integer
     An integer number with an optional sign.
@@ -110,19 +99,23 @@ integer
     The web service specification should state the valid range if it is different than this.
     Values outside the default range may create encoding problems for some network protocols.
 
-float
-    A floating point number.
+null
+    The null value, indicating no value is present.
+    If the value of a label within an object is null, this is equivalent to omitting the label and its value entirely.
+    Web service specifications will generally not define values as having the null type and instead specify that the corresponding label is optional, which means that it may either have a valid value of its specified type or may be null.
+    Network protocol specifications must specify how to serialize and deserialize null values.
+
+real
+    A real number.
     By default, any IEEE 754 binary64 (double precision) floating point number is supported.
     The web service specification should state any additional constraints.
     By default, the values positive infinity, negative infinity, and NaN are not permitted.
     The web service specification may explicitly allow them, but then must state their intended meanings in the context of the web service.
 
-boolean
-    A value that accepts only two options, true or false.
-
-enum
-    A value that must be chosen from an enumerated list of possibilities specified in the web service specification.
-    Each possibility must be a string.
+string
+    A sequence of Unicode code points.
+    By default, this sequence is allowed to be empty.
+    If this is not permitted for a given value, the web service must specify this.
 
 timestamp
     A specific point in UTC time using the Gregorian calendar.
@@ -131,10 +124,19 @@ timestamp
     Precision greater than milliseconds is not supported in timestamp fields and should be represented using some other data type (generally integer or float) following a specification specific to that web service.
     Dates prior to 1582-10-15 should not use this data type since they predate the Gregorian calendar.
 
-duration
-    A time duration.
-    By default, the duration has second precision and a millisecond portion of all zeroes should not be interpreted as providing additional precision.
-    Optionally, the web service specification may state that the milliseconds are significant.
+Derived data types
+------------------
+
+enum
+    A value that must be chosen from an enumerated list of possibilities specified in the web service specification.
+    Each possibility must be a string.
+
+uri
+    A Uniform Resource Identifier as specified in :rfc:`3986`.
+    If there are any constraints on its contents, such as a specific schema or structure, this must be specified by the web service.
+
+Composite data types
+--------------------
 
 list
     A list of some other data type.
@@ -144,6 +146,13 @@ list
     By default, a list may be empty.
     If it must be non-empty, the web service specification must specify this.
     The specification for the label for a value of type list must include both the singular and plural form, since different network encodings will use either the singular or the plural or both in different contexts.
+
+object
+    A mapping of labels to values.
+    Each object must have a specification for its acceptable labels and values, and each such specified object is considered a separate data type.
+    Labels themselves are of type string.
+    Every value corresponding to a label must have a specified data type.
+    A given label and its value may be optional, in which case the absence of the label and value or the presence of the label with a null value are equivalent.
 
 Operations
 ==========
