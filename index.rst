@@ -187,6 +187,10 @@ delete
 action
     Requests that the server perform some action that does not directly correspond to creating, modifying, deleting, or querying an object.
 
+Operations of type query and delete may have an empty request body.
+All other types of operations should have a non-empty request body in the service specification.
+This avoids some security issues with HTTP-based network encodings.
+
 .. _responses:
 
 Responses
