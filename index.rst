@@ -271,6 +271,237 @@ This allows a web service to return multiple errors in the same response, such a
 
 This structured error message may be used outside of explicit error responses.
 For example, it may be an appropriate data type for an error field in an object that provides the results of some previous operation.
+It is referred to as the data type ``error``.
+
+.. _uws:
+
+Universal Worker Service
+========================
+
+Many IVOA services perform operations that take longer than the typical timeout on a network protocol request and response.
+The Universal Worker Service (UWS) pattern is a standardized way to write such a service.
+All services implementing UWS use the same data model and operations to create and manage potentially long-running jobs and retrieve their results.
+
+.. note::
+
+   It may make more sense to spin this off as a separate document.
+   The formal specification should include all of the other semantic detail from the UWS specification, such as the state model.
+
+Data types
+----------
+
+phase (enum)
+    The current execution phase of the job.
+    One of the following values:
+
+    - ``PENDING``
+    - ``QUEUED``
+    - ``EXECUTING``
+    - ``COMPLETED``
+    - ``ERROR``
+    - ``ABORTED``
+    - ``UNKNOWN``
+    - ``HELD``
+    - ``SUSPENDED``
+    - ``ARCHIVED``
+
+job (object)
+    A representation of a UWS job.
+    It has the following fields:
+
+    jobId (string)
+        Unique identifier of the job.
+
+    owner (string, optional)
+        Identity of the owner of the job, if the job is owned by a specific user.
+
+    phase (phase)
+        Execution phase of the job.
+
+    runId (string, optional)
+        The run ID provided by the client when creating the job, if any.
+
+    creationTime (timestamp)
+        When the job was created.
+
+    startTime (timestamp, optional)
+        When the job started executing, if it has.
+
+    endTime (timestamp, optional)
+        When the job finished executing, if it has.
+
+    destructionTime (timestamp, optional)
+        When the job will be destroyed and any resources allocated to it will be freed.
+        When this time is reached, the job will be stopped if it is still running, all stored results and other information will be freed, and the service will forget that the job existed.
+
+    executionDuration (duration, optional)
+        How long the job is allowd to run.
+        If this is set and the job runs for longer than this period, it will be aborted.
+
+    quote (timestamp, optional)
+        Estimated time of completion of the job if it were started now.
+        If this time is later than ``destructionTime``, job execution is not possible due to resource constraints.
+
+    parameters (object)
+        The parameters used to create the job.
+        The data type of this object is defined by the service specification.
+
+    error (list of error, plural: errors, optional)
+        If the job failed with an error, the error messages corresponding to the failure.
+        This is a list so that all of the errors can be recorded for jobs that failed for multiple reasons.
+
+    result (list of object, plural: results, optional)
+        The results from the job, if it executed successfully.
+        The labels in each object are:
+
+        url (uri)
+            URL pointing to the job result.
+            This URL can be requested by the client (with ``GET``) to obtain the results of the job.
+
+        size (integer, optional)
+            The size of the results returned by ``uri``, if known.
+
+        mimeType (string, optional)
+            The MIME type of the results.
+            This should match the ``Content-Type`` header returned by ``GET`` on ``uri``.
+
+Operations
+----------
+
+The paths of these operations are relative to the base path of the UWS API, as defined by the service specification.
+This may not be the same as the base path of the service's API.
+
+Create job
+^^^^^^^^^^
+
+Create a new job.
+By default, the job is created in the ``PENDING`` phase.
+
+.. list-table::
+
+   * - Path
+     - ./
+   * - Operation type
+     - create
+
+Parameters
+""""""""""
+
+parameters (object)
+    The parameters to the job.
+    The data model for this parameter must be defined by the service specification.
+
+executionDuration (duration, optional)
+    Set the execution duration for the job.
+    Jobs will be aborted if they run for longer than this duration.
+    The server may override the value requested by the client, so the client must check the ``executionDuration`` of the returned job record to see what value was set.
+
+destructionTime (timestamp, optional)
+    The time at which the job and all of its results are deleted.
+    The job is aborted if it is still running, and all record of the job is removed.
+    The server may override the value requested by the client, so the client must check the ``executionDuration`` of the returned job record to see what value was set.
+
+runId (string, optional)
+    A run ID to associate with the job.
+    The server stores this as an opaque string and returns it in job records.
+    It may be used by the client to associate several jobs together or make it easier to find specific jobs later.
+
+start (boolean, optional)
+    If included and set to true, attempt to immediately start the job.
+    By default, a newly-created job stays in ``PENDING`` phase until it is explicitly started.
+
+Response
+""""""""
+
+On successful creation of the job, returns a response of type job, containing the metadata about the newly-created job.
+This may be done via a redirect to the :ref:`Get job <uws-get-job>` operation.
+
+.. _uws-get-job:
+
+Get job
+^^^^^^^
+
+Retrieve the details of a job.
+
+.. list-table::
+
+   * - Path
+     - jobs/{jobId}
+   * - Operation type
+     - query
+
+``GET`` may be used in the JSON network encoding.
+
+Parameters
+""""""""""
+
+None.
+
+Response
+""""""""
+
+If the job with the ``jobId`` specified in the path is found and the user is authorized, returns a response of type job containing the metadata about that job.
+
+Start job
+^^^^^^^^^
+
+Requests that the server start the execution of the job.
+
+.. list-table::
+
+   * - Path
+     - jobs/{jobId}/start
+   * - Operation type
+     - action
+
+Parameters
+""""""""""
+
+start (boolean)
+    Must be set to true.
+
+Response
+""""""""
+
+If the job with ID ``jobId`` can be started successfully, returns a response of type job, containing the metadata for that job.
+This may be done via a redirect to the :ref:`Get job <uws-get-job>` operation.
+
+Modify job
+^^^^^^^^^^
+
+Modify the parameters of an existing job.
+
+.. list-table::
+
+   * - Path
+     - jobs/{jobId}
+   * - Operation type
+     - modify
+
+Delete job
+^^^^^^^^^^
+
+Deletes a job.
+The job is stopped if it is currently running and removed from the API.
+It is not specified whether the underlying data associated with the job is deleted or merely made inaccessible.
+Deletion may not happen immediately.
+
+.. list-table::
+
+   * - Path
+     - jobs/{jobId}
+   * - Operation type
+     - delete
+
+Parameters
+""""""""""
+
+None.
+
+Response
+""""""""
+
+On success, none apart from the status code indicating success.
 
 Specification contents
 ======================
@@ -302,6 +533,8 @@ Web service specifications must include all of the following:
 #. For each supported network protocol encoding, the information that the network protocol says should be provided.
    This will usually include some form of schema for the combination of the web service and the network protocol.
    Requiring a schema is highly recommended, since schemas allow for code generation, service validation, and automatic generation of documentation.
+
+If the web service uses the UWS pattern, it can refer to :ref:`uws` for its supported operations and need only specify the data type for job parameters, the semantics of the job, the possible results of the job, and any additional service operations that fall outside the UWS pattern.
 
 To do
 =====
