@@ -206,6 +206,15 @@ Web service specifications should list the MIME types of the possible data respo
 The network protocol encoding must describe how to receive a data response and determine its MIME type, but need not describe how it is encoded if the network protocol conveys the normal byte stream representation of that MIME type in a way that is understood by a normal client of that network protocol.
 For example, a network protocol specification built on top of HTTP need not specify how HTTP conveys ``application/fits`` data, only how to label that the response is ``application/fits``.
 
+Content negotiation for data responses
+--------------------------------------
+
+Operations that respond with data may support multiple formats for that data.
+Network protocols may provide a protocol mechanism for the client to request which format should be used for the data response.
+For example, HTTP-based protocols may use the ``Accept`` HTTP header and corresponding content negotiation protocol to determine the requested format for the data response.
+
+Not all network protocols provide a protocol-level way of negotiating the format, so service specifications may also provide a way to ask for a specific data format as part of the request.
+
 Errors
 ======
 
