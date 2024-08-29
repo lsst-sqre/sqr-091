@@ -191,6 +191,17 @@ Operations of type query and delete may have an empty request body.
 All other types of operations should have a non-empty request body in the service specification.
 This avoids some security issues with HTTP-based network encodings.
 
+Operation paths
+---------------
+
+Operations have an associated path.
+This is a relative-URL string that specifies the URL for this operation relative to the base URL for the deployed service.
+It is only applicable to network protocols that use URLs.
+
+Multiple operations may have the same path.
+In this case, they must have different operation types.
+Operations of type action may not share the same path with any other operation.
+
 .. _responses:
 
 Responses
