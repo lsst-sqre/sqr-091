@@ -226,6 +226,8 @@ For example, HTTP-based protocols may use the ``Accept`` HTTP header and corresp
 
 Not all network protocols provide a protocol-level way of negotiating the format, so service specifications may also provide a way to ask for a specific data format as part of the request.
 
+.. _errors:
+
 Errors
 ======
 
@@ -364,6 +366,11 @@ job (object)
         mimeType (string, optional)
             The MIME type of the results.
             This should match the ``Content-Type`` header returned by ``GET`` on ``uri``.
+
+        error (boolean, optional)
+            If present and set to true, indicates that this result is an error.
+            The service specification specifies the type and content of the error.
+            Service specifications are encouraged to use an encoding of the object defined in :ref:`errors`.
 
 Operations
 ----------
