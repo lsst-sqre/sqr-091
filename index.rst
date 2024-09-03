@@ -377,12 +377,11 @@ Create job
 Create a new job.
 By default, the job is created in the ``PENDING`` phase.
 
-.. list-table::
+Path
+    ``./``
 
-   * - Path
-     - ./
-   * - Operation type
-     - create
+Operation type
+    create
 
 Parameters
 """"""""""
@@ -416,6 +415,55 @@ Response
 On successful creation of the job, returns a response of type job, containing the metadata about the newly-created job.
 This may be done via a redirect to the :ref:`Get job <uws-get-job>` operation.
 
+List jobs
+^^^^^^^^^
+
+Retrieve a list of jobs.
+
+Path
+    ``jobs``
+
+Operation type
+    query
+
+``GET`` may be used in the JSON network encoding.
+
+Parameters
+""""""""""
+
+phase (list of phase, optional, plural: phases)
+    Limit returned jobs to those in one of the given phases.
+
+after (timestamp, optional)
+    Limit returned jobs to those created after the given timestamp.
+
+last (integer, optional)
+    Limit returned jobs to the given number of records, prefering the most recent.
+    This limit is applied after other filtering.
+    For example, if both ``phase`` and ``after`` are given, along with ``limit=50``, this is a request for the 50 most recent jobs that satisfy the phase and creation timestamp constraints.
+
+Response
+""""""""
+
+On success, returns a list of objects representing jobs, sorted by descending creation time.
+Each object has the following labels.
+
+job (uri)
+    URL to a job record.
+    This should be the URL of the :ref:`uws-get-job` API that retrieves the job corresponding to this object.
+
+owner (string, optional)
+    Identity of the owner of the job, if the job is owned by a specific user.
+
+phase (phase)
+    Execution phase of the job.
+
+runId (string, optional)
+    The run ID provided by the client when creating the job, if any.
+
+creationTime (timestamp)
+    When the job was created.
+
 .. _uws-get-job:
 
 Get job
@@ -423,12 +471,11 @@ Get job
 
 Retrieve the details of a job.
 
-.. list-table::
+Path
+    ``jobs/{jobId}``
 
-   * - Path
-     - jobs/{jobId}
-   * - Operation type
-     - query
+Operation type
+    query
 
 ``GET`` may be used in the JSON network encoding.
 
@@ -447,12 +494,11 @@ Start job
 
 Requests that the server start the execution of the job.
 
-.. list-table::
+Path
+    ``jobs/{jobId}/start``
 
-   * - Path
-     - jobs/{jobId}/start
-   * - Operation type
-     - action
+Operation type
+    action
 
 Parameters
 """"""""""
@@ -466,17 +512,48 @@ Response
 If the job with ID ``jobId`` can be started successfully, returns a response of type job, containing the metadata for that job.
 This may be done via a redirect to the :ref:`Get job <uws-get-job>` operation.
 
+Wait for job
+^^^^^^^^^^^^
+
+Wait for the phase of a job to change.
+
+Path
+    ``jobs/{jobId}/wait``
+
+Operation type
+    query
+
+``GET`` may be used in the JSON network encoding.
+
+Parameters
+""""""""""
+
+phase (phase)
+    The phase that the client thinks the job is in.
+    The server will return as soon as the job phase is different from this phase, including when the phase of the job is already different when the request was received.
+
+timeout (duration, optional)
+    How long to wait for a phase transition.
+    If not given, the server will impose a maximum timeout.
+    This should be chosen by the server to be consistent with the native low-level timeout of the network protocol in use, if that imposes any constraints.
+
+Response
+""""""""
+
+When the job with ID ``jobId`` has a phase different from the provided phase, or when the timeout expires, returns a response of type job, containing the metadata for that job.
+The server will also return the job immediately if the phase is anything other than ``PENDING``, ``QUEUED``, ``EXECUTING``, ``HELD``, or ``SUSPENDED``, even if it matches the provided phase, since the other phases are terminal phases and will generally not change within the timeout of a query.
+This may be done via a redirect to the :ref:`Get job <uws-get-job>` operation.
+
 Modify job
 ^^^^^^^^^^
 
 Modify the parameters of an existing job.
 
-.. list-table::
+Path
+    ``jobs/{jobId}``
 
-   * - Path
-     - jobs/{jobId}
-   * - Operation type
-     - modify
+Operation type
+    modify
 
 Delete job
 ^^^^^^^^^^
@@ -486,12 +563,11 @@ The job is stopped if it is currently running and removed from the API.
 It is not specified whether the underlying data associated with the job is deleted or merely made inaccessible.
 Deletion may not happen immediately.
 
-.. list-table::
+Path
+    ``jobs/{jobId}``
 
-   * - Path
-     - jobs/{jobId}
-   * - Operation type
-     - delete
+Operation type
+    delete
 
 Parameters
 """"""""""
@@ -539,12 +615,11 @@ If the web service uses the UWS pattern, it can refer to :ref:`uws` for its supp
 To do
 =====
 
-The following things should be part of this specification but have not yet been written:
+The following things should be part of this draft specification but have not yet been written:
 
 .. rst-class:: compact
 
 - Address the various notes scattered through the document.
-- A specification for the Universal Worker Service API.
 - Descriptions of errors common to many web services, in a form suitable for creating URLs that serve as error identifiers.
 - Add the VOSI availability API
 - Add the VOSI capabilities API, which requires writing a data model for registry entries or continuing to return the current XML data model.
